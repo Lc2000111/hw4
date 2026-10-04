@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Campus Customs: App Check (Problem 11)</title>
+  <style>
+    :root { --bg: #0a0a0a; --surface: #151518; --border: #2b2b31; --text: #f4f1ec; --muted: #a6a6ae; --pink: #ff3f9e; --green: #3ddc84; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 -apple-system, "Segoe UI", Roboto, Inter, sans-serif; }
+    main { max-width: 1040px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+    h1 { margin: 0 0 0.3rem; font-size: 2.2rem; line-height: 1.15; }
+    h1 span, .pink { color: var(--pink); }
+    h2 { margin: 3rem 0 0.4rem; padding-top: 1.5rem; border-top: 1px solid var(--border); font-size: 1.55rem; }
+    h2 small { color: var(--muted); font-size: 0.95rem; font-weight: 500; }
+    h3 { margin: 1.6rem 0 0.4rem; font-size: 1.1rem; }
+    p { margin: 0.4rem 0; }
+    .muted { color: var(--muted); }
+    .badge { display: inline-block; margin-left: 0.4rem; padding: 0.1rem 0.6rem; border-radius: 999px; background: rgba(61, 220, 132, 0.15); color: var(--green); font-size: 0.85rem; font-weight: 700; vertical-align: middle; }
+    table { width: 100%; margin: 1rem 0; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { padding: 0.55rem 0.7rem; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+    th { color: var(--muted); font-weight: 600; }
+    code { padding: 0.05rem 0.35rem; border-radius: 5px; background: #222228; font-size: 0.9em; }
+    figure { margin: 1rem 0 1.8rem; padding: 0.9rem; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); }
+    figure img { display: block; width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border); }
+    figure a { display: block; }
+    figcaption { margin-top: 0.75rem; }
+    figcaption strong { color: var(--pink); }
+    .proves { margin-top: 0.4rem; padding: 0.55rem 0.8rem; border-left: 3px solid var(--pink); background: rgba(255, 63, 158, 0.08); border-radius: 0 8px 8px 0; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .grid2 figure { margin: 0.5rem 0 1rem; }
+    nav.toc a { color: var(--pink); text-decoration: none; margin-right: 1.2rem; font-weight: 600; }
+    @media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Campus Customs: <span>App Check</span></h1>
+  <p class="muted">Problem 11 · Live site tested on 2026-10-03 · Frontend <code>http://localhost:5173</code> (React + Vite) → FastAPI <code>:8000</code> → PydanticAI agent (<code>gpt-5.6-luna</code> via Portkey) → <code>data/campus_customs.db</code>. Screenshots were taken in the running app as a guest shopper. Click any image to open it full size.</p>
+  <nav class="toc"><a href="#check1">1 · Inventory check</a><a href="#check2">2 · Dynamic search cards</a><a href="#check3">3 · Usability feature</a><a href="#found">Issues found</a></nav>
+
+  <table>
+    <tr><th>#</th><th>Check</th><th>Result</th></tr>
+    <tr><td>1</td><td>Chat checks an item's inventory level, with honest stock and price from the database</td><td><span class="badge">PASS</span></td></tr>
+    <tr><td>2</td><td>Dynamic search-result cards appear after a category question ("What hoodies do you have?")</td><td><span class="badge">PASS</span></td></tr>
+    <tr><td>3</td><td>Problem 9 usability feature: Products page filters &amp; sorting (plus live progress and the sensitive-data guard)</td><td><span class="badge">PASS</span></td></tr>
+  </table>
+
+  <!-- ===================================================== -->
+  <h2 id="check1">Check 1: Chat checks inventory (honest stock &amp; price) <span class="badge">PASS</span></h2>
+  <p>Database values at test time (<code>sqlite3 data/campus_customs.db</code>):</p>
+  <table>
+    <tr><th>Product</th><th>Price</th><th>Stock by size</th></tr>
+    <tr><td>Basic Hoodie Big Yale</td><td>$68.00</td><td>XS 15 · S 5 · M 5 · L 8 · <b>XL 2</b> · XXL 25</td></tr>
+    <tr><td>Baseball Left Chest Crewneck</td><td>$58.00</td><td><b>XS 0</b> · S 15 · M 5 · L 25 · XL 0 · XXL 25</td></tr>
+  </table>
+
+  <figure>
+    <a href="app_check_images/inventory_chat.png"><img src="app_check_images/inventory_chat.png" alt="Chat answering how many XL are left and the price of the Basic Hoodie Big Yale" /></a>
+    <figcaption>
+      <strong>1a. Asking about stock on a product page.</strong> On the Basic Hoodie Big Yale page, the shopper asks <em>"How many XL are left of this hoodie, and how much is it?"</em> The assistant answers <em>"This hoodie is $68.00, and there are only 2 left in XL."</em>
+      <p class="proves">Proves the chat reads live inventory: <b>$68.00</b> and <b>2 in XL</b> match the database exactly. It also knew "this hoodie" meant the page being viewed, and showed a product card built from the database.</p>
+    </figcaption>
+  </figure>
+
+  <div class="grid2">
+    <figure>
+      <a href="app_check_images/inventory_page.png"><img src="app_check_images/inventory_page.png" alt="Product page showing $68.00 and XL only 2 left" /></a>
+      <figcaption>
+        <strong>1b. Same item, product page.</strong> The page's own size tiles show XL "Only 2 left" and the price tag $68.00.
+        <p class="proves">The chat answer, the website, and the database all agree.</p>
+      </figcaption>
+    </figure>
+    <figure>
+      <a href="app_check_images/inventory_soldout.png"><img src="app_check_images/inventory_soldout.png" alt="Chat saying the Baseball Left Chest Crewneck is sold out in XS" /></a>
+      <figcaption>
+        <strong>1c. A sold-out size.</strong> <em>"Is the Baseball Left Chest Crewneck available in XS?"</em> → <em>"Sorry… sold out in XS. It's in stock in S, M (only 5 left), L, and XXL."</em>
+        <p class="proves">Honest about stock: it says "sold out" clearly (XS = 0), never offers the size, and lists the real alternatives (M = 5 flagged as low).</p>
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ===================================================== -->
+  <h2 id="check2">Check 2: Dynamic search-result cards after a category question <span class="badge">PASS</span></h2>
+
+  <figure>
+    <a href="app_check_images/search_cards_chat.png"><img src="app_check_images/search_cards_chat.png" alt="After asking about hoodies, a Hoodies 27 items panel of product cards appears on the page" /></a>
+    <figcaption>
+      <strong>2a. The question.</strong> On the Home page the shopper asks <em>"What hoodies do you have?"</em> The assistant replies <em>"We have 27 hoodies, and I've put them all on the page for you…"</em>, and a <b>"From your chat · Hoodies · 27 items"</b> panel of product cards appears on the page.
+      <p class="proves">Proves the chat → page contract: the agent returned structured matches (a search id plus the title "Hoodies"), and the frontend rendered them as cards. The 27 matches the number of hoodies in the catalogue.</p>
+    </figcaption>
+  </figure>
+
+  <div class="grid2">
+    <figure>
+      <a href="app_check_images/search_cards_page.png"><img src="app_check_images/search_cards_page.png" alt="Grid of hoodie product cards with image, name, price and description" /></a>
+      <figcaption>
+        <strong>2b. The cards (chat closed).</strong> Each card shows the image, price tag, name, short description, and size pills (sold-out sizes struck through).
+        <p class="proves">The search results are real product cards on the page, not just text in the chat.</p>
+      </figcaption>
+    </figure>
+    <figure>
+      <a href="app_check_images/search_card_detail.png"><img src="app_check_images/search_card_detail.png" alt="Clicking a chat card opens the Champion Full Zip Hood detail page" /></a>
+      <figcaption>
+        <strong>2c. Clicking a chat-loaded card.</strong> Clicking "Champion Full Zip Hood" in the results opens its single-item page: large image, $88.00, full description, colors, and per-size stock. The results fold into a "Hoodies · 27 items" bar.
+        <p class="proves">The Problem 3 detail-page behavior still works for cards the chat put on the page.</p>
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ===================================================== -->
+  <h2 id="check3">Check 3: Problem 9 usability feature <span class="badge">PASS</span></h2>
+  <h3>Main: Products page filters &amp; sorting (F1)</h3>
+  <figure>
+    <a href="app_check_images/usability_filters.png"><img src="app_check_images/usability_filters.png" alt="Products page filtered to Hoodies in stock in M sorted by price high to low" /></a>
+    <figcaption>
+      <strong>3a. Filters in action.</strong> <code>/products?category=hoodie&amp;size=M&amp;sort=price-desc</code>: the <b>Hoodies 27</b> chip is active, "In stock in" is set to <b>M</b>, sorted <b>Price: high to low</b>. The page shows <b>"Showing 21 of 102 items · in stock in M"</b>, the $88 full-zips come first, and cards with low M stock carry an <b>"Only 5 left in M"</b> badge.
+      <p class="proves">The filters work and are honest: the database confirms 21 hoodies have M in stock, and both "Only 5 left in M" items have exactly M = 5. The filters live in the URL, so the view can be shared and Back works.</p>
+    </figcaption>
+  </figure>
+
+  <h3>Also shown: two agent/backend improvements</h3>
+  <div class="grid2">
+    <figure>
+      <a href="app_check_images/usability_progress.png"><img src="app_check_images/usability_progress.png" alt="Chat showing live status Searching the catalogue for navy quarter-zip" /></a>
+      <figcaption>
+        <strong>3b. Live progress streaming (A1, speed).</strong> While the agent works on <em>"Do you have any navy quarter-zips in size L?"</em>, the chat shows the live step <em>"Searching the catalogue for navy quarter-zip…"</em> next to bouncing dots.
+        <p class="proves">The streaming endpoint sends tool progress in real time, so the shopper isn't left staring at a frozen chat.</p>
+      </figcaption>
+    </figure>
+    <figure>
+      <a href="app_check_images/usability_redaction.png"><img src="app_check_images/usability_redaction.png" alt="Card number replaced by [card number removed] with a safety notice" /></a>
+      <figcaption>
+        <strong>3c. Sensitive-data guard (A2, safety).</strong> The shopper typed a card number. Their bubble shows <em>"[card number removed]"</em> with a safety notice, and the assistant explains it can't take payments and points them to the store.
+        <p class="proves">The number never reached the AI or the database: a search of <code>chat_messages</code> for it finds <b>0 rows</b>, and it appears nowhere on the page.</p>
+      </figcaption>
+    </figure>
+  </div>
+
+  <!-- ===================================================== -->
+  <h2 id="found">Issues found during testing (and fixed)</h2>
+  <table>
+    <tr><th>Issue</th><th>Fix</th><th>Status</th></tr>
+    <tr>
+      <td><b>Price tag legibility.</b> On product cards the hang tag's price was pink-on-cream in the varsity font, and "$68" could be misread as "$88".</td>
+      <td>Price tags now use the bold display font with even-width digits, in dark ink. A card's <code>.price</code> class was overriding the tag color and was removed from the tag.</td>
+      <td><span class="badge">Fixed</span> (screenshot 2a/2b taken after the fix)</td>
+    </tr>
+    <tr>
+      <td><b>Wrong buying instructions.</b> After refusing a card number, the agent once told the shopper to "complete checkout" on the site, but the site has no cart or checkout.</td>
+      <td><code>prompts/prompt.md</code> now states that the website has no cart or online checkout and that buying happens at 57 Broadway. On retest, the reply was "…please visit us at 57 Broadway in New Haven."</td>
+      <td><span class="badge">Fixed</span> (screenshot 3c)</td>
+    </tr>
+  </table>
+</main>
+</body>
+</html>

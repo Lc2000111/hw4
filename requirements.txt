@@ -1,0 +1,6 @@
+# Backend (FastAPI + PydanticAI agent). Install into hw4/.venv:
+#   python3 -m venv .venv && .venv/bin/python -m pip install -r requirements.txt
+fastapi
+uvicorn[standard]
+pydantic-ai-slim[openai]
+python-dotenv

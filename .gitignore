@@ -1,0 +1,31 @@
+# --- Secrets: never commit ---
+.env
+.env.*
+!.env.example
+
+# --- Local-only data pack (database + product images) ---
+data/
+data.zip
+*.db
+*.sqlite
+*.sqlite3
+
+# --- Local test logins (not real accounts; they only exist in a local database) ---
+TEST_ACCOUNTS.md
+
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# --- Node / Vite ---
+frontend/node_modules/
+frontend/dist/
+*.log
+
+# --- Editor / OS / tooling ---
+.claude/
+.DS_Store
+.vscode/
+.idea/
