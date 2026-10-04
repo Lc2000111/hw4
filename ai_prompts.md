@@ -148,3 +148,10 @@ Testing found and fixed two issues:
 
 **Result:** Added the remote `origin` → `https://github.com/Lc2000111/hw4.git`. The assistant did not use the pasted token. The push was run in the user's own terminal, where the user entered their GitHub credentials themselves.
 
+### Prompt 3
+> how to create a fine-grained token for this homework / start the push again / done, you can check
+
+**Result:** Gave step-by-step instructions for a fine-grained token limited to `Lc2000111/hw4` with Contents: Read and write. Restarted the push in the user's terminal; the user signed in themselves and the push succeeded (`main` → `e92824e`). Checked through the GitHub API: the repo is **public**; the files are `ai_prompts.md`, `requirements.txt`, `.env.example`, `.gitignore`, `README.md`, `backend/` (including `prompts/prompt.md`, `agent.py`, `tools.py`, `models.py`), `frontend/`, and `output/`. No `.env`, `data/`, `campus_customs.db`, or product images are in the repo.
+
+**Submission URL:** https://github.com/Lc2000111/hw4
+
